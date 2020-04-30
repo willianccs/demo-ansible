@@ -109,4 +109,3 @@ $ sudo su
 
 ## Contribuindo
 PRs e feedbacks são sempre bem vindos.
->>>>>>> First commit
