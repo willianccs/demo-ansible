@@ -2,9 +2,9 @@
 
 ## Provisionando um cluster com Ansible
 
-Projeto utilizado no webinar em parceria com a Digital Innovation One e o Opensanca, realizado no dia 28/04/2020.
-Slides: https://speakerdeck.com/willianccs/provisionando-um-cluster-kubernetes-com-ansible
-Gravação: https://youtu.be/URcC8iKDFKQ
+Projeto utilizado no webinar em parceria com a Digital Innovation One e o Opensanca, realizado no dia 28/04/2020.  
+Slides: https://speakerdeck.com/willianccs/provisionando-um-cluster-kubernetes-com-ansible  
+Gravação: https://youtu.be/URcC8iKDFKQ  
 
 ## Pré-requisitos
 
