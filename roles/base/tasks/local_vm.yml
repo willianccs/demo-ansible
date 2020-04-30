@@ -1,0 +1,29 @@
+---
+# tasks file for base
+- name: Ensure temp download directory exist
+  file: state=directory path={{vagrant_tmp_dir}}
+  
+- include: debian_ubuntu.yml
+  when: ansible_os_family == 'Debian'
+  
+- include: redhat.yml
+  when: ansible_os_family == 'RedHat'
+   
+- name: Provisioning local VMs using Vagrant
+  command: vagrant up
+  become: False
+  args:
+    chdir: "{{ playbook_dir }}"
+  tags:
+   - vagrant_up
+
+- name: Disable Firewall (testing purpose)
+  become_user: vagrant
+  become: true
+  command: sudo ufw disable
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['kube'] }}"
+  register: disable_firewall
+  tags:
+   - vagrant_up

@@ -1,0 +1,35 @@
+---
+# vars file for create-cluster
+kubernetes_version: '1.18'
+kubernetes_apiserver_advertise_address: '192.168.20.4'
+kubernetes_version_kubeadm: 'stable-{{ kubernetes_version }}'
+kubernetes_ignore_preflight_errors: 'all'
+
+kubernetes_kubelet_extra_args: "--node-ip={{ ansible_host }}"
+kubernetes_kubeadm_init_extra_opts: ""
+kubernetes_join_command_extra_opts: ""
+
+kubernetes_allow_pods_on_master: false
+kubernetes_enable_web_ui: false
+kubernetes_web_ui_manifest_file: https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
+
+kubernetes_pod_network:
+  # Weave CNI:
+  cni: 'weave'
+  cidr: '10.32.0.0/16'
+  # Flannel CNI.
+  # cni: 'flannel'
+  # cidr: '10.244.0.0/16'
+  # Calico CNI.
+  # cni: 'calico'
+  # cidr: '192.168.0.0/16'
+
+kubernetes_apt_ignore_key_error: false
+# Note that xenial repo is used for all Debian derivatives at this time.
+kubernetes_apt_repository: "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+
+default_kubernetes_cni_weavenet_manifestUrl: "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
+# A list of users who will be added to the docker group.
+docker_users: 
+  - vagrant

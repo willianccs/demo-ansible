@@ -1,0 +1,32 @@
+---
+# tasks file for base
+- name: Add Virtualbox repository
+  apt_key: 
+    url: "{{ item }}"
+    state: present
+  loop:
+    - "https://www.virtualbox.org/download/oracle_vbox.asc"
+    - "https://www.virtualbox.org/download/oracle_vbox_2016.asc"
+
+- name: Configure the VirtualBox APT repositories
+  apt_repository: 
+    repo: "deb http://download.virtualbox.org/virtualbox/debian {{ ansible_distribution_release }} contrib"
+    state: present
+
+- name: Install VirtualBox
+  apt: 
+    pkg: virtualbox-{{ virtualbox_version }}
+    state: present
+    update_cache: yes
+
+- name: Install virtualbox dkms package
+  apt: name="virtualbox-dkms" state=present
+  when: virtualbox_install_dkms | bool
+
+- name: Download vagrant
+  get_url: url={{ vagrant_url_deb }} dest={{vagrant_tmp_deb}}
+
+- name: Install vagrant for Debian OS family
+  apt: deb={{vagrant_tmp_deb}}
+
+

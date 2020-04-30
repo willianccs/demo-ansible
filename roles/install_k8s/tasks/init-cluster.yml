@@ -1,0 +1,36 @@
+- name: Reset Cluster
+  command:
+    kubeadm reset --force
+  register: kubeadmin_init
+
+- name: Initialize Kubernetes master with kubeadm init.
+  command: >
+    kubeadm init
+  register: kubeadmin_init
+  when: provider == 'aws_ec2'
+
+- name: Initialize Kubernetes master with kubeadm init.
+  command: >
+    kubeadm init
+    --pod-network-cidr={{ kubernetes_pod_network.cidr }}
+    --apiserver-advertise-address={{ kubernetes_apiserver_advertise_address | default(ansible_default_ipv4.address, true) }}
+    --kubernetes-version {{ kubernetes_version_kubeadm }}
+    --ignore-preflight-errors={{ kubernetes_ignore_preflight_errors }}
+  register: kubeadmin_init
+  when: provider == 'local_vms'
+    # --ignore_preflight_errors={{ kubernetes_ignore_preflight_errors }}
+  
+- name: Ensure .kube directory exists.
+  file:
+    path: ~/.kube
+    state: directory
+
+- name: Symlink the kubectl admin.conf to ~/.kube/conf.
+  file:
+    src: /etc/kubernetes/admin.conf
+    dest: ~/.kube/config
+    state: link
+
+- name: Configure weavenet networking.
+  shell: kubectl apply -f {{ default_kubernetes_cni_weavenet_manifestUrl }}
+  register: weavenet_result

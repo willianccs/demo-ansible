@@ -1,0 +1,7 @@
+---
+# handlers file for create-cluster
+- name: restart docker
+  service: name=docker state=restarted enabled=true
+
+- name: restart kubelet
+  service: name=kubelet state=restarted enabled=true

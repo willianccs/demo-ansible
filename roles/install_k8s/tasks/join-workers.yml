@@ -1,0 +1,24 @@
+---
+- name: "Kubeadm reset node cluster config"
+  command: 
+    kubeadm reset --force
+  register: kubeadm_reset_node
+
+- name: Join node to Kubernetes master
+  shell: >
+    {{ kubernetes_join_command }}
+    creates=/etc/kubernetes/kubelet.conf
+
+# Thanks to: https://github.com/weaveworks/weave/issues/3363
+- name: Update network route table
+  command: ip route add 10.32.0.1/32 via 192.168.20.4 dev enp0s8
+  when: provider == 'local_vms'
+
+- name: Update network interfaces routes
+  lineinfile:
+    dest: /etc/network/interfaces
+    insertafter: "iface enp0s8 inet static"
+    line: "post-up ip route add 10.32.0.1/32 via 192.168.20.4 dev enp0s8 || true"
+    state: present
+  when: provider == 'local_vms'
+  

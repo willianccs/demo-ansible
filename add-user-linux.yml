@@ -1,0 +1,10 @@
+---
+- hosts: local
+  become: true
+
+  tasks:
+    - name: Add the user 'opensanca' with a bash shell
+      user:
+        name: opensanca
+        shell: /bin/bash
+        state: present

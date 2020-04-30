@@ -1,0 +1,21 @@
+---
+# vars file for base
+
+# provider: local_vms
+virtualbox_version: 5.2
+virtualbox_install_dkms: False  # default for 5.1 or higher as no longer required
+vagrant_version: "2.2.7"
+vagrant_tmp_dir: "/tmp/ansible_downloads/"
+vagrant_tmp_deb: "{{vagrant_tmp_dir}}/vagrant_{{vagrant_version}}.deb"
+vagrant_tmp_rpm: "{{vagrant_tmp_dir}}/vagrant_{{vagrant_version}}.rpm"
+vagrant_url_deb: "https://releases.hashicorp.com/vagrant/{{vagrant_version}}/vagrant_{{vagrant_version}}_{{ansible_architecture}}.deb"
+vagrant_url_rpm: "https://releases.hashicorp.com/vagrant/{{vagrant_version}}/vagrant_{{vagrant_version}}_{{ansible_architecture}}.rpm"
+
+# provider: aws_ec2
+instance_type: t2.medium
+sec_group_name: opensanca
+image: ami-07ebfd5b3428b6f4d
+keypair: changeme
+region: us-east-1
+count: 3
+profile: opensanca

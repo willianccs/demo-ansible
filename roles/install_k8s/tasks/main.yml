@@ -1,0 +1,67 @@
+---
+# tasks file for create-cluster
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- include_tasks: install-Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- include_tasks: install-Redhat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: Install Kubernetes packages.
+  package:
+    name: "{{ kubernetes_packages }}"
+    state: present
+  notify: restart kubelet
+  vars:
+    kubernetes_packages:
+      - kubelet
+      - kubectl
+      - kubeadm
+      - kubernetes-cni
+
+- include_tasks: kubelet-setup.yml
+  when: provider == 'local_vms'
+
+# Set up master.
+- include_tasks: init-cluster.yml
+  when:
+  - kubernetes_role == 'master'
+
+# Set up nodes.
+- name: Get the kubeadm join command from the Kubernetes master.
+  command: kubeadm token create --print-join-command
+  changed_when: false
+  when: kubernetes_role == 'master'
+  register: kubernetes_join_command_result
+
+- name: Set the kubeadm join command globally.
+  set_fact:
+    kubernetes_join_command: >
+      {{ kubernetes_join_command_result.stdout }}
+  when: kubernetes_join_command_result.stdout is defined
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['k8s_public'] }}"
+
+- debug: var=kubernetes_join_command
+
+- include: join-workers.yml
+  when: kubernetes_role == 'node'
+
+- name: Allow pods on master node (if configured).
+  command: "kubectl taint nodes --all node-role.kubernetes.io/master-"
+  when:
+    - kubernetes_allow_pods_on_master | bool
+
+- name: Restart VMs (if using Vagrant)
+  command: vagrant reload
+  become: False
+  args:
+    chdir: "{{ playbook_dir }}"
+  tags:
+    - vagrant_restart
+  delegate_to: localhost
+  run_once: true
+  when: provider == 'local_vms'

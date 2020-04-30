@@ -1,0 +1,16 @@
+[local]
+localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
+
+[kube]
+kubemaster ansible_host=192.168.20.4 kubernetes_role=master
+kubenode1 ansible_host=192.168.20.2 kubernetes_role=node
+kubenode2 ansible_host=192.168.20.3 kubernetes_role=node
+
+[kube:vars]
+ansible_ssh_user=vagrant
+ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
+
+[k8s_public]
+
+[k8s_private]
+

@@ -1,0 +1,17 @@
+---
+- hosts: k8s_public
+  become: true
+  user: ubuntu
+  vars:
+    provider: aws_ec2
+  pre_tasks:
+  - name: 'Atualizando o repo'
+    shell: apt-get update
+    args:
+      warn: no
+      
+  - name: 'instalando o python'
+    raw: 'apt-get -y install python3'
+    
+  roles:
+    - name: install_k8s

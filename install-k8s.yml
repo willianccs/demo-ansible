@@ -1,0 +1,9 @@
+---
+- hosts: kube
+  become: true
+  user: vagrant
+  vars:
+    provider: local_vms
+
+  roles:
+    - name: install_k8s

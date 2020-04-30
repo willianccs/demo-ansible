@@ -1,0 +1,55 @@
+- name: Ensure dependencies are installed.
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+    state: present
+
+- name: Instalando o Docker
+  shell: curl -fsSL https://get.docker.com | bash -
+  args:
+    warn: false
+
+- name: Docker - Setup daemon.
+  shell: |
+    cat > /etc/docker/daemon.json <<EOF
+    {
+      "exec-opts": ["native.cgroupdriver=systemd"],
+      "log-driver": "json-file",
+      "log-opts": {
+        "max-size": "100m"
+      },
+      "storage-driver": "overlay2"
+    }
+    EOF
+
+- name: Docker - Ensure service path exists.
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+  notify: restart docker
+
+- name: Ensure docker users are added to the docker group.
+  user:
+    name: "{{ item }}"
+    groups: docker
+    append: true
+  loop: "{{ docker_users }}"
+  when: 
+    - docker_users | length > 0
+    - provider == 'local_vms'
+
+- name: Add Kubernetes apt key.
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+  register: add_repository_key
+  ignore_errors: "{{ kubernetes_apt_ignore_key_error }}"
+
+- name: Add Kubernetes repository.
+  apt_repository:
+    repo: "{{ kubernetes_apt_repository }}"
+    state: present
+    update_cache: true
