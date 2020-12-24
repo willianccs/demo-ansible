@@ -1,0 +1,32 @@
+---
+- hosts: local
+  vars:
+    instance_type: t2.medium
+    sec_group_name: opensanca
+    image: ami-07ebfd5b3428b6f4d
+    keypair: descomplicando-ansible
+    region: us-east-1
+    count: 1
+    profile: default
+
+  tasks:
+    - name: Info ec2 facts
+      ec2_instance_info:
+        region: "{{ region }}"
+      register: ec2_info
+
+    - pause:
+    
+    - name: Removendo instancia EC2
+      local_action: ec2
+        profile={{ profile }}
+        region={{ region }}
+        keypair={{ keypair }}
+        instance_ids={{ item.instance_id }}
+        state=absent
+      loop: "{{ ec2_info.instances }}"
+      register: ec2_delete
+
+    - name: Debug ec2_delete
+      debug:
+        var: ec2_delete
